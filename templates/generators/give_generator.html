@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}/give генератор | Генератор команд Minecraft{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h2>Генератор команд /give</h2>
+    <form id="give-form">
+        <div>
+            <label>Игрок: </label>
+            <select name="player" id="player">
+                <option value="@p">Ближайший игрок</option>
+                <option value="@a">Все игроки</option>
+                <option value="@r">Случайный игрок</option>
+                <option value="nickname">Имя игрока</option>
+            </select>
+        </div>
+        <div>
+            <label>Предмет: </label>
+            <select name="item" id="item">
+                {% for item in items %}
+                <option value="{{ item.id }}">{{ item.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>Количество: </label>
+            <input type="number" name="count" id="count" min="1" max="64" value="1">
+        </div>
+        <button type="button" onclick="generateGiveCommand()">Сгенерировать команду</button>
+    </form>
+    <div id="result"></div>
+</div>
+<script src="{{ url_for('static', filename='js/give_generator.js') }}"></script>
+{% endblock %}

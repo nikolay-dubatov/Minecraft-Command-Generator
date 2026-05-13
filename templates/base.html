@@ -7,16 +7,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
 </head>
 <body>
-    <nav>
-        <div class="nav-container">
-            <a href="/" class="logo">Minecraft Generators</a>
-            <div class="nav-links">
-                <a href="/">Главная</a>
-                <a href="/give_generator">Генератор /give</a>
-                <a href="/json_text_generator">Генератор JSON-текста</a>
+    <header>
+        <nav>
+            <div class="nav-container">
+                <a href="/" class="logo">Minecraft Generators</a>
+                <div class="nav-links">
+                    <a href="/">Главная</a>
+                    <a href="/give_generator">Генератор /give</a>
+                    <a href="/json_text_generator">Генератор JSON-текста</a>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
+    
     <main>
         {% block content %}{% endblock %}
     </main>
