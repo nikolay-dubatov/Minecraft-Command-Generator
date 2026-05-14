@@ -12,9 +12,9 @@
             <div class="nav-container">
                 <a href="/" class="logo">Minecraft Generators</a>
                 <div class="nav-links">
-                    <a href="/">Главная</a>
-                    <a href="/give_generator">Генератор /give</a>
-                    <a href="/json_text_generator">Генератор JSON-текста</a>
+                    <a href="/" class="btn">Главная</a>
+                    <a href="{{ url_for('give_generator') }}" class="btn">Генератор /give</a>
+                    <a href="{{ url_for('summon_generator') }}" class="btn">Генератор /summon</a>
                 </div>
             </div>
         </nav>

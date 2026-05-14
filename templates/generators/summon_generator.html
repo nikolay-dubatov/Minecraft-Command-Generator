@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}/summon генератор | Minecraft Generators{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Генератор команд /summon</h2>
+    <form id="summon-form">
+        <div>
+            <label>Сущность: </label>
+            <select name="entity" id="entity">
+                {% for entity in entities %}
+                <option value="{{ entity.id }}">{{ entity.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="-field">X</label>
+            <input type="text" name="x-field" id="x-field" placeholder="~" value="~">
+            <label for="y-field">Y</label>
+            <input type="text" name="y-field" id="y-field" placeholder="~" value="~">
+            <label for="z-field">Z</label>
+            <input type="text" name="z-field" id="z-field" placeholder="~" value="~">
+        </div>
+        <div>
+            <label for="custom-name">Отображаемое имя</label>
+            <input type="text" name="custom-name" id="cuustom-name">
+        </div>
+        <button type="button" onclick="generateSummonCommand">Сгенерировать команду</button>
+    </form>
+    <div id="result"></div>
+    <script src="{{ url_for('static', filename='js/summon_generator.js') }}"></script>
+</div>
+{% endblock %}
