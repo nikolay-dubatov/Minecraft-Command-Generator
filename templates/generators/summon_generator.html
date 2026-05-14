@@ -24,9 +24,9 @@
         </div>
         <div>
             <label for="custom-name">Отображаемое имя</label>
-            <input type="text" name="custom-name" id="cuustom-name">
+            <input type="text" name="custom-name" id="custom-name" value="">
         </div>
-        <button type="button" onclick="generateSummonCommand">Сгенерировать команду</button>
+        <button type="button" onclick="generateSummonCommand()">Сгенерировать команду</button>
     </form>
     <div id="result"></div>
     <script src="{{ url_for('static', filename='js/summon_generator.js') }}"></script>
