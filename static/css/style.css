@@ -11,6 +11,51 @@ body {
     margin: 0 auto;
     padding: 20px;
 }
+.header {
+    margin: 10px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+select, input[type="number"], input[type="text"] {
+    width: 30%;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+select:focus, input:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+button {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    margin-top: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+button:hover {
+    background: linear-gradient(135deg, #2980b9, #2471a8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 .nav-container {
     position: sticky;
     margin: auto 0;
@@ -28,12 +73,51 @@ a {
     text-decoration: none;
 }
 a.btn {
+    display: inline-block;
+    background: #3498db;
     color: white;
-    padding: 5px;
-    background: #764ba2;
-    border-radius: 5px;
-    text-align: center;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 4px;
+    margin: 5px;
+    transition: background 0.3s;
 }
+a.btn:hover {
+    background: #2980b9;
+}
+
+.command-box {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 20px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: 'Courier New', monospace;
+    border-left: 4px solid #3498db;
+}
+
+.command-box strong {
+    color: #3498db;
+    display: block;
+    margin-bottom: 8px;
+}
+
+code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+select option {
+    padding: 8px 10px;
+    background: white;
+}
+select option:hover {
+    background-color: #e3f2fd;
+}
+
 .generators-grid {
     display: flex;
     flex-wrap: wrap;
@@ -47,6 +131,7 @@ a.btn {
     color: black;
     flex-direction: column;
     text-align: center;
+    margin: 10px;
 }
 footer {
     background: black;
