@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, Response, render_template, request, jsonify
 from flask_cors import CORS
 import json
 
@@ -19,8 +19,27 @@ def home() -> str:
 def give_generator() -> str:
     return render_template('generators/give_generator.html', items = data['items'])
 
+@app.route('/summon_generator')
+def summon_generator() -> str:
+    return render_template('generators/summon_generator.html', entities=data['entities'])
+
+@app.route('/generate/summon', methods=['post'])
+def generate_summon() -> Response:
+    data: dict = request.json
+    entity = data.get('entity', 'zombie')
+    position = data.get('position', '~ ~ ~')
+    custom_name = data.get('customName', None)
+    
+    if custom_name:
+        custom_name_snbt = {"CustomName": custom_name}
+        command = f"summon minecraft:{entity} {position} {str(custom_name_snbt)}"
+        return jsonify({'command': command})
+    else:
+        command = f"summon minecraft:{entity} {position}"
+        return jsonify({'command': command})
+
 @app.route('/generate/give', methods=['POST'])
-def generate_give():
+def generate_give() -> Response:
     data: dict = request.json
     target = data.get('player', '@p')
     item = data.get('item', 'cobblestone')
