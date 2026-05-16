@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Страница не найдена | Minecraft Generators{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Ой! Страница не найдена</h2>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{{ url_for('home') }}" class="btn">Вернуться на главную</a>
+    </div>
+</div>
+{% endblock %}

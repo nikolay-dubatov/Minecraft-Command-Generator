@@ -21,7 +21,7 @@ app = Flask(__name__)
 app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
 app.logger.info('Minecraft Command Generator startup')
-CORS(app)
+
 def load_minecraft_data() -> dict:
     with open('data/data.json', 'r', encoding='utf-8') as f:
         return json.load(f)
@@ -75,6 +75,11 @@ def generate_give() -> Response:
 def handle_exception(e):
     app.logger.error(f'Unhandled exception: {str(e)}', exc_info=True)
     return jsonify({'error': 'Internal server error'}), 500
+
+@app.errorhandler(404)
+def page_not_found(e):
+    app.logger.warning(f'404 Error: Page not found - {request.url}')
+    return render_template('404.html'), 404
 
 if __name__ == "__main__":
     app.run('0.0.0.0', 5000, debug=True)
