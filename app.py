@@ -21,6 +21,8 @@ app = Flask(__name__)
 app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
 app.logger.info('Minecraft Command Generator startup')
+app.secret_key = '15062013Nd'
+app.logger.info(f'Secret key: {app.secret_key}') # Delete in release
 
 def load_minecraft_data() -> dict:
     with open('data/data.json', 'r', encoding='utf-8') as f:
