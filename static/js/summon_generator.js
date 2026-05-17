@@ -14,9 +14,11 @@ async function generateSummonCommand() {
         headers: {'Content-Type': 'application/json'}, 
         body: JSON.stringify(formData)
     });
-    const data = await response.json()
-    $('result').innerHTML = 
-        `<div class="command-box"><strong>Сгенерированная команда: </strong><br><code>${data.command}</code></div>`;
+    if (response.status === 200) {
+        const data = await response.json()
+        $('result').innerHTML = 
+            `<div class="command-box"><strong>Сгенерированная команда: </strong><br><code>${data.command}</code></div>`;
+    }
 }
 
 function getPosition(x, y, z) {
