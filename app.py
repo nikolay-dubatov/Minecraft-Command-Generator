@@ -1,4 +1,4 @@
-from flask import Flask, Response, render_template, request, jsonify
+from flask import Flask, Response, render_template, request, jsonify, flash
 from flask_cors import CORS
 from logging.handlers import RotatingFileHandler
 import json
@@ -43,36 +43,48 @@ def summon_generator() -> str:
 
 @app.route('/generate/summon', methods=['post'])
 def generate_summon() -> Response:
-    data: dict = request.json
-    entity = data.get('entity', 'zombie')
-    position = data.get('position', '~ ~ ~')
-    custom_name = data.get('customName', None)
-    app.logger.info(f'Generate SUMMON command: {entity=}, {position=}, {custom_name=}')
-    
-    if custom_name:
-        custom_name_snbt = {"CustomName": custom_name}
-        command = f"summon minecraft:{entity} {position} {str(custom_name_snbt)}"
-        app.logger.info(f'Generated SUMMON command: {command}')
-        return jsonify({'command': command})
-    else:
-        command = f"summon minecraft:{entity} {position}"
-        app.logger.info(f'Generate SUMMON command: {command}')
-        return jsonify({'command': command})
+    try:
+        data: dict = request.json
+        entity = data.get('entity', 'zombie')
+        position = data.get('position', '~ ~ ~')
+        custom_name = data.get('customName', None)
+        
+        if custom_name:
+            custom_name_snbt = {"CustomName": custom_name}
+            command = f"summon minecraft:{entity} {position} {str(custom_name_snbt)}"
+            flash('Команда успешно сгенерирована!', 'success')
+            app.logger.info(f'Successfully generated SUMMON command: {command}')
+            return jsonify({'command': command})
+        else:
+            command = f"summon minecraft:{entity} {position}"
+            flash('Команда успешно сгенерирована!', 'success')
+            app.logger.info(f'Successfully generated SUMMON command: {command}')
+            return jsonify({'command': command})
+    except Exception as e:
+        flash('Ошибка при генерации команды.', 'error')
+        app.logger.error(f'Error generating GIVE command: {str(e)}')
+        jsonify({'error': str(e)}), 500
 
 @app.route('/generate/give', methods=['POST'])
 def generate_give() -> Response:
-    data: dict = request.json
-    target = data.get('player', '@p')
-    item = data.get('item', 'cobblestone')
-    count = data.get('count', 1)
-    app.logger.info(f'Generate GIVE command: {target=}, {item=}, {count=}')
-    
-    command = f"give {target} minecraft:{item} {count}"
-    app.logger.info(f'Generated GIVE command: give {target} minecraft:{item} {count}')
-    return jsonify({'command': command})
+    try:
+        data: dict = request.json
+        target = data.get('player', '@p')
+        item = data.get('item', 'cobblestone')
+        count = data.get('count', 1)
+        
+        command = f"give {target} minecraft:{item} {count}"
+        flash('Команда успешно сгенерирована!', 'success')
+        app.logger.info(f'Generated GIVE command: {command}')
+        return jsonify({'command': command})
+    except Exception as e:
+        flash('Ошибка при генерации команды.', 'error')
+        app.logger.error(f'Error generating GIVE command: {str(e)}')
+        return jsonify({'error': str(e)}), 500
 
 @app.errorhandler(Exception)
 def handle_exception(e):
+    flash('Непредвиденная ошибка на сервере')
     app.logger.error(f'Unhandled exception: {str(e)}', exc_info=True)
     return jsonify({'error': 'Internal server error'}), 500
 
