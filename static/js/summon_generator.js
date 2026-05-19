@@ -1,25 +1,27 @@
-function $(id) {
-    return document.getElementById(id);
-}
+$(document, 'summon-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-async function generateSummonCommand() {
-    const formData = {
-        entity: $('entity').value, 
-        position: getPosition($('x-field').value, $('y-field').value, $('z-field').value),
-        customName: getCustomName()
-    };
-    console.log(formData)
-    const response = await fetch('/generate/summon', {
-        method: 'POST', 
-        headers: {'Content-Type': 'application/json'}, 
-        body: JSON.stringify(formData)
-    });
-    if (response.status === 200) {
-        const data = await response.json()
-        $('result').innerHTML = 
-            `<div class="command-box"><strong>Сгенерированная команда: </strong><br><code>${data.command}</code></div>`;
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+
+    try {
+        const response = await fetch('/generate/summon', {
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify(data)
+        });
+            const result = await response.json()
+            if (result.success) {
+                $(document, 'result').innerHTML = 
+                    `<div class="command-box"><strong>Сгенерированная команда: </strong><br><code>${result.command}</code></div>`;
+                showFlashMessage(result.message, 'success');
+            } else {
+                showFlashMessage(result.error, 'error');
+            }
+    } catch (error) {
+        showFlashMessage('Ошибка сети', 'error')
     }
-}
+});
 
 function getPosition(x, y, z) {
     const position = `${x} ${y} ${z}`;

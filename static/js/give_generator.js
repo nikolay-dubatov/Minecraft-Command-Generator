@@ -1,20 +1,24 @@
-async function generateGiveCommand() {
-    const formData = {
-        player: document.getElementById('player').value,
-        item: document.getElementById('item').value,
-        count: document.getElementById('count').value
-    };
-    const response = await fetch('/generate/give', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'}, 
-        body: JSON.stringify(formData)
-    });
-    if (response.status === 200) {
-        const data = await response.json();
-        document.getElementById('result').innerHTML = 
-            `<div class="command-box"><strong>Сгенерированная команда: </strong><br><code>${data.command}</code></div>`;
+$(document, 'give-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+
+    try {
+        const response = await fetch('/generate/give', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (result.success) {
+            $(document, 'result').innerHTML = 
+                `<div class="command-box"><strong>Сгенерированная команда: </strong><br><code>${result.command}</code></div>`;
+            showFlashMessage(result.message, 'success');
+        } else {
+            showFlashMessage(result.error, 'error');
         }
-}
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Give generator script loaded');
+    } catch (error) {
+        showFlashMessage('Ошибка сети', 'error')
+    }
 });

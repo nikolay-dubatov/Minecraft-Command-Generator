@@ -28,9 +28,12 @@
             <label>Количество: </label>
             <input type="number" name="count" id="count" min="1" max="64" value="1">
         </div>
-        <button type="button" onclick="generateGiveCommand()">Сгенерировать команду</button>
+        <button type="submit">Сгенерировать команду</button>
     </form>
     <div id="result"></div>
 </div>
+{% endblock %}
+
+{% block scripts %}
 <script src="{{ url_for('static', filename='js/give_generator.js') }}"></script>
 {% endblock %}

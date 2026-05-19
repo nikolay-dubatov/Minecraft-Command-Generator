@@ -13,19 +13,13 @@
             <div class="nav-container">
                 <a href="/" class="logo">Minecraft Generators</a>
                 <div class="nav-links">
-                    <a href="/" class="btn">Главная</a> | 
-                    <a href="{{ url_for('give_generator') }}" class="btn">Генератор /give</a> | 
+                    <a href="/" class="btn">Главная</a> 
+                    <a href="{{ url_for('give_generator') }}" class="btn">Генератор /give</a> 
                     <a href="{{ url_for('summon_generator') }}" class="btn">Генератор /summon</a>
                 </div>
             </div>
         </nav>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash {{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <div class="flash-messages"></div>
     </header>
     
     <main>
@@ -34,6 +28,7 @@
     <footer>
         Здесь пока ничего нет (и не будет)
     </footer>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

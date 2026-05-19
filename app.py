@@ -1,4 +1,4 @@
-from flask import Flask, Response, render_template, request, jsonify, flash
+from flask import Flask, Response, render_template, request, jsonify
 from flask_cors import CORS
 from logging.handlers import RotatingFileHandler
 import json
@@ -54,18 +54,20 @@ def generate_summon() -> Response:
         if custom_name:
             custom_name_snbt = {"CustomName": custom_name}
             command = f"summon minecraft:{entity} {position} {str(custom_name_snbt)}"
-            flash('Команда успешно сгенерирована!', 'success')
-            app.logger.info(f'Successfully generated SUMMON command: {command}')
-            return jsonify({'command': command})
         else:
             command = f"summon minecraft:{entity} {position}"
-            flash('Команда успешно сгенерирована!', 'success')
-            app.logger.info(f'Successfully generated SUMMON command: {command}')
-            return jsonify({'command': command})
+        app.logger.info(f'Successfully generated SUMMON command: {command}')
+        return jsonify({
+                'command': command, 
+                'success': True, 
+                'message': 'Команда сгенерирована'
+            })
     except Exception as e:
-        flash('Ошибка при генерации команды.', 'error')
         app.logger.error(f'Error generating GIVE command: {str(e)}')
-        jsonify({'error': str(e)}), 500
+        return jsonify({
+            'error': 'Ошибка генерации команды', 
+            'success': False
+        }), 500
 
 @app.route('/generate/give', methods=['POST'])
 def generate_give() -> Response:
@@ -76,17 +78,21 @@ def generate_give() -> Response:
         count = data.get('count', 1)
         
         command = f"give {target} minecraft:{item} {count}"
-        flash('Команда успешно сгенерирована!', 'success')
         app.logger.info(f'Generated GIVE command: {command}')
-        return jsonify({'command': command})
+        return jsonify({
+            'command': command, 
+            'success': True, 
+            'message': 'Команда сгенерирована'
+        })
     except Exception as e:
-        flash('Ошибка при генерации команды.', 'error')
         app.logger.error(f'Error generating GIVE command: {str(e)}')
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'error': 'Ошибка генерации команды', 
+            'success': False
+        }), 500
 
 @app.errorhandler(Exception)
 def handle_exception(e):
-    flash('Непредвиденная ошибка на сервере')
     app.logger.error(f'Unhandled exception: {str(e)}', exc_info=True)
     return jsonify({'error': 'Internal server error'}), 500
 
