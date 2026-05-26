@@ -19,7 +19,7 @@ class MinecraftData:
         """Gets all versions of Minecraft by `piston-meta`"""
         cache_key = 'versions_manifest'
         cached = self.cache.get(cache_key)
-        debug = True
+        debug = False
         
         if not debug:
             current_time = datetime.now()
@@ -27,7 +27,7 @@ class MinecraftData:
                 current_time - self.last_manifest_check >= self.check_interval):
                 try:
             
-                    url = f"{self.base_url}/version_manifest_v2.json"
+                    url = f"{self.base_url}/version_manifest.json"
                     response = requests.get(url, timeout=10)
                     if response.status_code == 200:
                         self.logger.info('Successfuly fetched versions manifest')
@@ -36,14 +36,12 @@ class MinecraftData:
                         self.last_manifest_check = current_time
                         return data
                     else:
-                        self.logger.error("Failed to fetch versions manifest")
                         raise Exception("Failed to fetch versions manifest")
                 except Exception as e:
                     self.logger.error(f'Failed to update manifest: {str(e)}')
                 
         if cached:
             return cached
-        self.logger.error('Failed to get versions manifest')
         raise Exception('Failed to get versions manifest')
         
     def get_version_info(self, version_id) -> dict:

@@ -38,11 +38,11 @@ def home() -> str:
 
 @app.route('/give_generator')
 def give_generator() -> str:
-    return render_template('generators/give_generator.html', items = data['items'])
+    return render_template('generators/give_generator.html')
 
 @app.route('/summon_generator')
 def summon_generator() -> str:
-    return render_template('generators/summon_generator.html', entities=data['entities'])
+    return render_template('generators/summon_generator.html')
 
 @app.route('/api/minecraft/releases')
 def get_versions_list() -> Response:
@@ -111,14 +111,17 @@ def generate_summon() -> Response:
     try:
         data: dict = request.json
         entity = data.get('entity', 'zombie')
-        position = data.get('position', '~ ~ ~')
-        custom_name = data.get('customName', None)
+        x = data.get('x-field')
+        y = data.get('x-field')
+        z = data.get('z-field')
+        position = ' '.join([x, y, z])
+        custom_name = data.get('custom-name', None)
         
         if custom_name:
             custom_name_snbt = {"CustomName": custom_name}
             command = f"summon minecraft:{entity} {position} {str(custom_name_snbt)}"
         else:
-            command = f"summon minecraft:{entity} {position}"
+            command = f"summon {entity} {position}"
         logger.info(f'Successfully generated SUMMON command: {command}')
         return jsonify({
                 'command': command, 
@@ -140,7 +143,7 @@ def generate_give() -> Response:
         item = data.get('item', 'cobblestone')
         count = data.get('count', 1)
         
-        command = f"give {target} minecraft:{item} {count}"
+        command = f"give {target} {item} {count}"
         logger.info(f'Generated GIVE command: {command}')
         return jsonify({
             'command': command, 

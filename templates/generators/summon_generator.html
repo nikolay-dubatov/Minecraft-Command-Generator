@@ -7,11 +7,13 @@
     <h2>Генератор команд /summon</h2>
     <form id="summon-form">
         <div>
+            <label for="version">Версия: </label>
+            <select name="version" id="version"></select>
+        </div>
+        <div>
             <label>Сущность: </label>
             <select name="entity" id="entity">
-                {% for entity in entities %}
-                <option value="{{ entity.id }}">{{ entity.name }}</option>
-                {% endfor %}
+
             </select>
         </div>
         <div>

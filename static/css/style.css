@@ -61,10 +61,13 @@ button:hover {
     margin: 10px 0;
     border-radius: 10px;
     border-left: 4px solid;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .flash-messages {
+    position: fixed;
     display: flex;
+    left: 20vw;
     justify-content: space-around;
 }
 

@@ -8,7 +8,7 @@
     <h2>Генератор команд /give</h2>
     <form id="give-form">
         <div>
-            <label for="version"></label>
+            <label for="version">Версия: </label>
             <select name="version" id="version"></select>
         </div>
         <div>
@@ -21,15 +21,13 @@
             </select>
         </div>
         <div>
-            <label>Предмет: </label>
+            <label for="item">Предмет: </label>
             <select name="item" id="item">
-                {% for item in items %}
-                <option value="{{ item.id }}">{{ item.name }}</option>
-                {% endfor %}
+
             </select>
         </div>
         <div>
-            <label>Количество: </label>
+            <label for="count">Количество: </label>
             <input type="number" name="count" id="count" min="1" max="64" value="1">
         </div>
         <button type="submit">Сгенерировать команду</button>
