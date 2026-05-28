@@ -14,6 +14,16 @@ class MinecraftData:
         
         self.items_extractor = items_extractor.ItemsExtractor()
         self.cache = minecraft_cache.MinecraftCache()
+        self.cache.cleanup_old_caches()
+        self.cache_latest()
+    
+    def cache_latest(self) -> None:
+        latest = self.get_latest()
+        for key in ("items", "entities"):
+            cached = self.cache.get(key, latest, 24)
+            if cached: continue
+        if cached: return
+        self._fetch_and_cache_data(latest, ("items", "entities"))
     
     def get_versions_manifest(self) -> dict:
         """Gets all versions of Minecraft by `piston-meta`"""
@@ -53,19 +63,18 @@ class MinecraftData:
         )
         
         if not version_info:
-            self.logger.error(f'Version {version_id} not found in the manifest')
             raise ValueError(f'Version {version_id} not found in the manifest')
         
         return version_info
     
     def get_version_details(self, version_id) -> dict:
         version_info = self.get_version_info(version_id)
-        cached = self.cache.get(f'{version_id}_details')
+        cached = self.cache.get('details', version_id)
         if not cached:
             response = requests.get(version_info['url'])
             if response.status_code == 200:
                 data = response.json()
-                self.cache.set(f'{version_id}_details', data)
+                self.cache.set('details', data, version_id)
                 return data
             else:
                 raise Exception(f'Failed to fetch version details: {response.status_code}')
@@ -91,13 +100,16 @@ class MinecraftData:
         return version_id in version_ids
     
     def _should_update_cache(self, version_id, data_type) -> bool:
-        key = f'{data_type}_{version_id}'
-        cached = self.cache.get(key)
+        key = data_type
+        cached = self.cache.get(key, version_id)
         
         if not cached:
             return True
-        
-        version_info = self.get_version_info(version_id)
+        try:
+            version_info = self.get_version_info(version_id)
+        except ValueError as e:
+            self.logger.error(e)
+            return
         return version_info is None
     
     def get_data_for_version(self, version_id, data_type):
@@ -105,16 +117,24 @@ class MinecraftData:
             self.logger.info(f'Updating {data_type} cache for v{version_id}...')
             data = self._fetch_and_cache_data(version_id, data_type)
         else:
-            cache_key = f'{data_type}_{version_id}'
-            data = self.cache.get(cache_key)
+            cache_key = data_type
+            data = self.cache.get(cache_key, version_id)
         return data
     
     def _fetch_and_cache_data(self, version_id, data_type):
-        version_details = self.get_version_details(version_id)
+        try:
+            version_details = self.get_version_details(version_id)
+        except ValueError as e:
+            self.logger.error(e)
+            return
         items, entities = self.items_extractor.get_items_and_entities(version_id, version_details)
-        data = items if data_type == 'items' else entities
-        cache_key = f'{data_type}_{version_id}'
-        self.cache.set(cache_key, data)
+        if isinstance(data_type, str):
+            data = items if data_type == 'items' else entities
+            cache_key = data_type
+            self.cache.set(cache_key, data, version_id)
+        elif isinstance(data_type, tuple):
+            for key in data_type:
+                self.cache.set(key, globals()[key])
         return data
     
         
