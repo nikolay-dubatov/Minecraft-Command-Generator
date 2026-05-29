@@ -69,13 +69,31 @@ class Autocomplete {
 
         this.filteredItems.forEach((item, index) => {
             const li = document.createElement('li');
-            li.className = 'suggestions-item';
+            li.className = `suggestions-item${index === this.activeIndex ? ' active' : ''}`;
             li.textContent = item.replace('minecraft:', '');
             li.addEventListener('click', () => this.selectItem(item));
             this.suggestionsList.appendChild(li);
         });
 
+        this.scrollToActive();
         this.showSuggestions();
+    }
+
+    scrollToActive() {
+        const activeItem = this.suggestionsList.querySelector('.suggestions-item.active');
+        if (!activeItem) return;
+
+        const container = this.suggestionsList;
+        const itemTop = activeItem.offsetTop;
+        const itemHeight = activeItem.offsetHeight;
+        const containerHeight = container.clientHeight;
+        const scrollTop = container.scrollTop;
+
+        if (itemTop < scrollTop) {
+            container.scrollTop = itemTop;
+        } else if (itemTop + itemHeight > scrollTop + containerHeight) {
+            container.scrollTop = itemTop + itemHeight - containerHeight;
+        }
     }
 
     selectItem(item) {
@@ -98,12 +116,12 @@ class Autocomplete {
             case 'ArrowDown':
                 e.preventDefault();
                 this.activeIndex = (this.activeIndex + 1) % this.filteredItems.length;
-                this.updateActiveSuggestion();
+                this.renderSuggestions();
                 break;
             case 'ArrowUp':
                 e.preventDefault();
                 this.activeIndex = this.activeIndex <= 0 ? this.filteredItems.length - 1 : this.activeIndex - 1;
-                this.updateActiveSuggestion();
+                this.renderSuggestions();
                 break;
             case 'Enter':
                 e.preventDefault();

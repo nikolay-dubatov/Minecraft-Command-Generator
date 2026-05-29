@@ -53,10 +53,10 @@ select, input {
     border-bottom: 1px solid #eee;
     box-sizing: border-box;
 }
-.suggestion-item:hover {
+.suggestions-item:hover {
     background-color: #f0f0f0;
 }
-.suggestion-item.active {
+.suggestions-item.active {
     background-color: #007bff;
     color: white;
 }
