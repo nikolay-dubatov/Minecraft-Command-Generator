@@ -39,21 +39,106 @@ class ItemsExtractor():
         tag_data = {}
         with zipfile.ZipFile(jar_path, 'r') as jar:
             for file_info in jar.filelist:
-                if file_info.filename.startswith('data/minecraft/tags/item'):
-                    with jar.open(file_info) as tag_file:
+                filename = file_info.filename
+                if ((filename.startswith('data/minecraft/recipe') or
+                     filename.startswith('data/minecraft/loot_table') or
+                     filename.startswith('data/minecraft/tags/item')) and 
+                    filename.endswith('.json')):
+                    with jar.open(file_info) as file:
                         try:
-                            tag_data: dict = json.load(tag_file)
-                            for item_id in tag_data.get('values', []):
-                                if isinstance(item_id, str):
-                                    items.add(item_id)
-                                elif isinstance(item_id, dict):
-                                    items.add(item_id.get('id', ''))
+                            data: dict = json.load(file)
+                            self._extract_from_recipes(data, items)
+                            self._extract_from_loot_tables(data, items)
+                            self._extract_from_tags(data, items)
                         except json.JSONDecodeError as e:
                             self.logger.error(f"JSON parse error in {file_info.filename}: {e}")
                             continue
-                        
+        
+        items.update({
+            'minecraft:barrier',
+            'minecraft:light',
+            'minecraft:structure_block',
+            'minecraft:jigsaw',
+            'minecraft:command_block',
+            'minecraft:repeating_command_block',
+            'minecraft:chain_command_block', 
+            'minecraft:test_block', 
+            'minecraft:test_instance_block',
+        })
         return list(filter(lambda x: not x.startswith('#'), sorted(items)))
     
+    def _extract_from_loot_tables(self, data: dict, items: set) -> None:
+        if isinstance(data, dict):
+            if 'type' in data and data['type'] == 'item' and 'name' in data:
+                items.add(data['name'])
+            if 'pools' in data:
+                for pool in data['pools']:
+                    if 'entries' in pool:
+                        for entry in pool['entries']:
+                            self._extract_from_table_entry(entry, items)
+            for key, value in data.items():
+                self._extract_from_loot_tables(value, items)
+        elif isinstance(data, list):
+            for item in data:
+                self._extract_from_loot_tables(item, items)
+                
+    def _extract_from_table_entry(self, entry: dict, items: set) -> None:
+        if 'type' in entry and entry['type'] == 'minecraft:item':
+            if 'name' in entry:
+                items.add(entry['name'])
+        elif 'children' in entry:
+            for child in entry['children']:
+                self._extract_from_table_entry(child, items)
+        
+    def _extract_from_tags(self, data: dict, items: set) -> None:
+        if 'values' in data:
+            for value in data['values']:
+                if isinstance(value, str):
+                    items.add(value)
+                elif isinstance(value, dict) and 'id' in value:
+                    items.add(value['id'])
+        
+    def _extract_from_recipes(self, data: dict, items: set) -> None:
+        if isinstance(data, dict):
+            # 1. recipe result
+            if 'result' in data:
+                result = data['result']
+                if isinstance(result, dict) and 'id' in result:
+                    items.add(result['id'])
+                elif isinstance(result, str):
+                    items.add(result)
+            
+            # 2. recipe ingredients
+            if 'ingredients' in data:
+                for ingredient in data['ingredients']:
+                    if isinstance(ingredient, str):
+                        if not ingredient.startswith('#'):
+                            items.add(ingredient)
+                    elif isinstance(ingredient, dict):
+                        self._extract_ingredient_ids(ingredient, items)
+            
+            # 3. Recursive traversal of other fields
+            for key, value in data.items():
+                if key not in ['result', 'ingredients']:
+                    self._extract_from_recipes(value, items)
+        elif isinstance(data, list):
+            for item in data:
+                self._extract_from_recipes(item, items)
+                
+    def _extract_ingredient_ids(self, ingredient: dict, items: set) -> None:
+        if 'item' in ingredient:
+            items.add(ingredient['items'])
+        elif 'tag' in ingredient:
+            pass
+        for key, value in ingredient.items():
+            if key not in ['item', 'tag']:
+                if isinstance(value, dict):
+                    self._extract_ingredient_ids(value, items)
+                elif isinstance(value, list):
+                    for v in value:
+                        if isinstance(v, dict):
+                            self._extract_ingredient_ids(v, items)
+        
     def extract_entities_from_jar(self, jar_path) -> list:
         entities = set()
         entity_data = {}
