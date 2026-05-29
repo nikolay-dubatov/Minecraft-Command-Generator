@@ -3,35 +3,46 @@ class SummonGenerator {
         this.currentVersion = null;
         this.entities = [];
         this.latest = null;
+        this.autocomplete = null;
         this.bindEvents();
         this.init()
     }
     async init() {
-        this.latest = await getLatest();
-        await this.loadEntities(this.latest);
+        try {
+            this.latest = await getLatest();
+            this.currentVersion = this.latest;
+            await this.loadEntities(this.latest);
+        } catch (error) {
+            console.error('Failed to initialize SummonGenerator')
+        }
     }
     async loadEntities(version) {
         try {
-            this.entities = await getData('entities', version)
-            this.updateEntitySelect();
+            this.entities = await getData('entities', version);
+            if (this.autocomplete) {
+                this.autocomplete.updateDataSource(this.entities);
+            } else {
+                this.initAutocomplete();
+            }
         } catch (error) {
             console.error('Failed to load entities', error);
         }
     }
-    updateEntitySelect() {
-        const entitySelect = $('#entity');
-        if (!entitySelect) return;
-
-        entitySelect.innerHTML = '';
-
-        this.entities.forEach(entityId => {
-            const option = document.createElement('option');
-            const entityName = entityId.replace('minecraft:', '');
-            option.value = entityId;
-            option.textContent = entityName;
-            entitySelect.appendChild(option);
-        });
+    
+    initAutocomplete() {
+        this.autocomplete = new Autocomplete(
+            '#entity-search', 
+            '#entity-suggestions', 
+            this.entities, 
+            (selectedEntity) => {
+                const hiddenInput = $('#selected-entity');
+                if (hiddenInput) {
+                    hiddenInput.value = selectedEntity;
+                }
+            }
+        );
     }
+
     bindEvents() {
         $('#version').addEventListener('change', async (e) => {
             this.currentVersion = e.target.value;

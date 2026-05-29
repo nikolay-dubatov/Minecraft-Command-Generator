@@ -11,11 +11,19 @@
             <select name="version" id="version"></select>
         </div>
         <div>
-            <label>Сущность: </label>
-            <select name="entity" id="entity">
-
-            </select>
+            <label for="entity-search">Сущность: </label>
+            <input 
+                type="text" 
+                name="entity-search" 
+                id="entity-search"
+                placeholder="Поиск..."
+                class="autocomplete-input"
+                required
+                autocomplete="off"
+            >
+            <ul id="entity-suggestions" class="suggestions-list" style="display: none;"></ul>
         </div>
+        <input type="hidden" id="selected-entity" name="entity" required style="display: none;">
         <div>
             <label for="-field">X</label>
             <input type="text" name="x-field" id="x-field" placeholder="~" value="~">
