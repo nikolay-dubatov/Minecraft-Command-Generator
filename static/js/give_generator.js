@@ -3,45 +3,77 @@ class GiveGenerator {
         this.currentVersion = null;
         this.latest = null;
         this.items = [];
+        this.autocomplete = null;
         this.bindEvents();
         this.init()
     }
     async init() {
-        this.latest = await getLatest();
-        await this.loadItems(this.latest)
+        try {
+            this.latest = await getLatest();
+            this.currentVersion = this.latest;
+            await this.loadItems(this.latest);
+        } catch (error) {
+            console.error("Failed to initialize GiveGenerator:", error);
+            showFlashMessage("Не удалось загрузить данные: " + error.message, "error");
+        }
     }
     async loadItems(version) {
         try {
             this.items = await getData('items', version);
-            this.updateItemSelect();
+            if (this.autocomplete) {
+                this.autocomplete.updateDataSource(this.items)
+            } else {
+                this.initAutocomplete();
+            }
         } catch (error) {
             console.error("Failed to load items: ", error);
         }
     }
-    updateItemSelect() {
-        const itemSelect = $('#item');
-        itemSelect.innerHtml = '';
-        this.items.forEach(itemId => {
-            const option = document.createElement('option');
-            const itemName = itemId.replace('minecraft:', '');
-            option.value = itemId;
-            option.textContent = itemName;
-            itemSelect.appendChild(option);
-        });
+
+    initAutocomplete() {
+        this.autocomplete = new Autocomplete(
+            '#item-search', 
+            '#item-suggestions', 
+            this.items, 
+            (selectedItem) => {
+                const hiddenInput = $('#selected-item');
+                if (hiddenInput) {
+                    hiddenInput.value = selectedItem;
+                }
+                console.log("Выбран предмет:", selectedItem);
+            }
+        );
     }
+
     bindEvents() {
-        $('#version').addEventListener('change', async (e) => {
-            this.currentVersion = e.target.value;
-            await this.loadItems(this.currentVersion);
-        });
-        $('#give-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await this.generateGiveCommand();
-        });
+        const versionSelect = $('#version');
+        const form = $('#give-form')
+
+        if (versionSelect) {
+            versionSelect.addEventListener('change', async (e) => {
+                this.currentVersion = e.target.value;
+                await this.loadItems(this.currentVersion);
+            });
+        } else {
+            console.error("Element #version not found");
+        }
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await this.generateGiveCommand();
+            });
+        } else {
+            console.error('Element #give-form not found')
+        }
     }
     async generateGiveCommand() {
         const formData = new FormData($('#give-form'))
         const data = Object.fromEntries(formData);
+
+        const hiddenItem = $('#selected-item');
+        if (hiddenItem && hiddenItem.value) {
+            data.item = hiddenItem.value;
+        }
 
         try {
             const response = await fetch('/generate/give', {

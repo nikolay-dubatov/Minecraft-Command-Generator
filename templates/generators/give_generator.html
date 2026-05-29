@@ -15,17 +15,25 @@
             <label for="player">Игрок: </label>
             <select name="player" id="player">
                 <option value="@p">Ближайший игрок</option>
+                <option value="@s">Самому себе</option>
                 <option value="@a">Все игроки</option>
                 <option value="@r">Случайный игрок</option>
                 <option value="nickname">Имя игрока</option>
             </select>
         </div>
         <div>
-            <label for="item">Предмет: </label>
-            <select name="item" id="item">
-
-            </select>
+            <label for="item-search">Предмет: </label>
+            <input 
+                type="search" 
+                required
+                name="item-search" 
+                id="item-search"
+                placeholder="Поиск..."
+                class="autocomplete-input"
+            >
+            <ul id="item-suggestions" class="suggestions-list" required style="display: none;"></ul>
         </div>
+        <input type="hidden" id="selected-item" name="item">
         <div>
             <label for="count">Количество: </label>
             <input type="number" name="count" id="count" min="1" max="64" value="1">
